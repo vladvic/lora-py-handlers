@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import threading
 import time
 import lorawan
@@ -60,6 +60,9 @@ def water_meter(session, port, data):
             save_device_reading(row, 'leak', leakage, datetime.fromtimestamp(utc_ts))
             save_device_reading(row, 'burst', outburst, datetime.fromtimestamp(utc_ts))
 
+        dt = datetime.now(timezone.utc)
+        utc_time = dt.replace(tzinfo=timezone.utc)
+        now_ts = int(utc_time.timestamp())
         diff = now_ts - utc_ts
 
         if abs(diff) > (60 * 60 * 24):
@@ -69,7 +72,7 @@ def water_meter(session, port, data):
     if port == 4 and datatype == 255:
         dt = datetime.now(timezone.utc)
         utc_time = dt.replace(tzinfo=timezone.utc)
-        now_ts = utc_time.timestamp()
+        now_ts = int(utc_time.timestamp())
 
         utc_ts = int.from_bytes(data[2:6], 'little')
         diff = now_ts - utc_ts
