@@ -74,7 +74,7 @@ def water_meter(session, port, data):
         utc_time = dt.replace(tzinfo=timezone.utc)
         now_ts = int(utc_time.timestamp())
 
-        utc_ts = int.from_bytes(data[2:6], 'little')
+        utc_ts = int.from_bytes(data[1:5], 'little')
         diff = now_ts - utc_ts
 
         if abs(diff) > 50:
