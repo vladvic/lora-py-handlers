@@ -67,8 +67,9 @@ def water_meter(session, port, data):
 
         if abs(diff) > (60 * 60 * 24):
             send_data = bytearray([255])
-            send_data.extend(diff.to_bytes(8, byteorder = 'little'))
-            lorawan.send(session.networkId, session.deviceAddr, 4, send_data, False)
+            send_data.extend(diff.to_bytes(8, byteorder = 'little', signed=True))
+            print("Time correction packet: {}".format(send_data))
+        #    lorawan.send(session.networkId, session.deviceAddr, 4, send_data, False)
     if port == 4 and datatype == 255:
         dt = datetime.now(timezone.utc)
         utc_time = dt.replace(tzinfo=timezone.utc)
@@ -79,7 +80,8 @@ def water_meter(session, port, data):
 
         if abs(diff) > 50:
             send_data = bytearray([255])
-            send_data.extend(diff.to_bytes(8, byteorder = 'little'))
+            send_data.extend(diff.to_bytes(8, byteorder = 'little', signed=True))
+            print("Time correction packet: {}".format(send_data))
             lorawan.send(session.networkId, session.deviceAddr, 4, send_data, False)
 
 
