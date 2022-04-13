@@ -111,6 +111,11 @@ def ndpd_process_data(session, port, data):
         else:
             print('Handler for appEUI {} not found'.format(session.device.appEUI))
 
+        send_data = find_send_data(row['id'])
+
+        if send_data is not None:
+            lorawan.send(session.networkId, session.deviceAddr, send_data['port'], bytearray(send_data['data']), send_data['confirmation'])
+
     stdout.flush()
 
 

@@ -1,6 +1,6 @@
 import datetime
 from model.Meta import meta
-from sqlalchemy import Table, Text, Column, Float, BigInteger, Integer, String, MetaData, Sequence, ForeignKey, DateTime
+from sqlalchemy import Table, Text, Column, Float, BigInteger, Integer, String, MetaData, Sequence, ForeignKey, DateTime, LargeBinary, Boolean
 
 device_type = Table(
   'signalogic_devicetype', meta, 
@@ -84,4 +84,13 @@ device_session = Table(
   Column("joinAckDelay1", Integer),
   Column("rx2Channel", Integer),
   Column("rx2Datarate", Integer),
+)
+
+device_sendqueue = Table(
+  'signalogic_devicesendqueue', meta, 
+  Column('id', Integer, primary_key = True), 
+  Column('device_id', Integer, ForeignKey("signalogic_device.id"), nullable=False), 
+  Column('port', Integer, nullable=False), 
+  Column('data', LargeBinary, nullable=False),
+  Column('confirmation', Boolean, nullable=False, default=False),
 )

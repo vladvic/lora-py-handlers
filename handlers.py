@@ -15,7 +15,7 @@ def electro_write(session, signal, data):
         send_data.extend([0, 1])
         print("Sending data: {}".format(send_data))
         send_data = bytearray(send_data)
-        lorawan.send(session.networkId, session.deviceAddr, 2, send_data, False);
+        lorawan.send(session.networkId, session.deviceAddr, 2, send_data, False)
 
 
 def electro_read(session, port, data):
@@ -30,8 +30,7 @@ def electro_read(session, port, data):
             try:
                 print('Data type matches')
                 utc_ts = int.from_bytes(bytes(data[5:9]), byteorder='little')
-                #WtH = int.from_bytes(bytes(data[10:14]), byteorder='little')
-                WtH = int.from_bytes(bytes(data[10:14]), byteorder='big')
+                WtH = int.from_bytes(bytes(data[13:17]), byteorder='little')
 
                 print('Adding device reading: {}: {}'.format(utc_ts, WtH / 1000))
                 for row in rows:
@@ -69,7 +68,7 @@ def water_meter(session, port, data):
             send_data = bytearray([255])
             send_data.extend(diff.to_bytes(8, byteorder = 'little', signed=True))
             print("Time correction packet: {}".format(send_data))
-        #    lorawan.send(session.networkId, session.deviceAddr, 4, send_data, False)
+            lorawan.send(session.networkId, session.deviceAddr, 4, send_data, False)
     if port == 4 and datatype == 255:
         dt = datetime.now(timezone.utc)
         utc_time = dt.replace(tzinfo=timezone.utc)
@@ -78,7 +77,7 @@ def water_meter(session, port, data):
         utc_ts = int.from_bytes(data[1:5], 'little')
         diff = now_ts - utc_ts
 
-        if abs(diff) > 50:
+        if abs(diff) < (60 * 60 * 24) and abs(diff) > 50:
             send_data = bytearray([255])
             send_data.extend(diff.to_bytes(8, byteorder = 'little', signed=True))
             print("Time correction packet: {}".format(send_data))

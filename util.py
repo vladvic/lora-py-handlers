@@ -1,6 +1,6 @@
 from datetime import datetime
 import model.Device
-from model.Device import device, device_reading, device_session, device_cflist, device_type, device_signal, signal
+from model.Device import device, device_reading, device_session, device_cflist, device_type, device_signal, device_sendqueue, signal
 from model.Database import engine, session
 from sqlalchemy.sql import select, and_
 from sqlalchemy.exc import OperationalError
@@ -9,17 +9,38 @@ def exec_query(sql):
     try:
         res = session.execute(sql)
         session.commit()
-        session.close()
-        return res
     except OperationalError:
         session.rollback()
         print(e)
+        res = session.execute(sql)
+        session.commit()
 
-    res = session.execute(sql)
-    session.commit()
     session.close()
     return res
         
+
+def add_send_data(device_id, port, data, confirm):
+    sql = device_sendqueue.select().where(device_sendqueue.c.device_id == device_id).order_by(device_sendqueue.c.id)
+    sql = device_sendqueue.insert().values({'device_id': device_id,
+                                            'port': port,
+                                            'data': data,
+                                            'confirmation': confirm})
+    res = exec_query(sql)
+
+
+def find_send_data(device_id):
+    sql = device_sendqueue.select().where(device_sendqueue.c.device_id == device_id).order_by(device_sendqueue.c.id)
+    res = exec_query(sql)
+
+    res = list(res)
+
+    for row in res:
+        sql = device_sendqueue.delete().where(device_sendqueue.c.id == row['id'])
+        exec_query(sql)
+        return row
+
+    return None
+
 
 def find_device_id(device_id):
     sql = device.select().where(device.c.id == device_id)
