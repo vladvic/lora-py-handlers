@@ -9,7 +9,7 @@ def exec_query(sql):
     try:
         res = session.execute(sql)
         session.commit()
-    except OperationalError:
+    except OperationalError as e:
         session.rollback()
         print(e)
         res = session.execute(sql)
