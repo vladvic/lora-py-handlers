@@ -118,7 +118,14 @@ def relay_read(session, port, data):
         for row in rows:
             save_device_reading(row, 'input1', input1)
             save_device_reading(row, 'input2', input2)
-
+    if port == 2 and data[0] == 2:
+        inputN = data[3]
+        for row in rows:
+            if row['alias'][-5:] == 'valve':
+              value = load_last_device_reading(row, 'relay2')
+              if value > 0:
+                t1 = threading.Thread(target=lambda : disable_valve(session), daemon=True)
+                t1.start()
 
 def relay_write(session, signal, data):
     port = 2
@@ -142,26 +149,6 @@ def run_delayed(fun, delay):
     time.sleep(delay)
     fun()
 
-def valve_read(session, port, data):
-    print('Got valve packet type {}'.format(data[0]))
-    if port == 2 and data[0] == 5 and data[3] == 2:
-        update_control(session, 'state', data[4])
-    elif port == 2 and data[0] == 2 and data[8] == 1:
-        t1 = threading.Thread(target=lambda : run_delayed(lambda : disable_valve(session), 10), daemon=True)
-        t1.start()
-    elif port == 2 and data[0] == 2 and data[8] == 0:
-        t2 = threading.Thread(target=lambda : run_delayed(lambda : enable_valve(session), 10), daemon=True)
-        t1.start()
-
-
-def enable_valve(session):
-    send_data = bytearray([4, 1])
-    lorawan.send(session.networkId, session.deviceAddr, 2, send_data, False)
-    print("Sleeping 4 seconds")
-    time.sleep(4)
-    send_data = bytearray([3, 2, 0])
-    lorawan.send(session.networkId, session.deviceAddr, 2, send_data, False)
-
 
 def disable_valve(session):
     send_data = bytearray([4, 2])
@@ -170,18 +157,6 @@ def disable_valve(session):
     time.sleep(4)
     send_data = bytearray([3, 1, 0])
     lorawan.send(session.networkId, session.deviceAddr, 2, send_data, False)
-
-
-def valve_write(session, signal, data):
-    port = 2
-    data = struct.unpack('f', data)[0]
-    print('Sending valve data: {}'.format(data))
-    if data == 1:
-        t1 = threading.Thread(target=lambda : enable_valve(session), daemon=True)
-        t1.start()
-    else:
-        t1 = threading.Thread(target=lambda : disable_valve(session), daemon=True)
-        t1.start()
 
 
 deviceTypes = {

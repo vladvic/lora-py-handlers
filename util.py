@@ -3,6 +3,7 @@ import model.Device
 from model.Device import device, device_reading, device_session, device_cflist, device_type, device_signal, device_sendqueue, signal
 from model.Database import engine, session
 from sqlalchemy.sql import select, and_
+from sqlalchemy import desc
 from sqlalchemy.exc import OperationalError
 
 def exec_query(sql):
@@ -121,6 +122,19 @@ def find_device_type(device):
         print('Found type {}'.format(t))
         return t['name']
 
+    return None
+
+def load_last_device_reading(device, signal_name):
+    signal = find_signal_by_name(device, signal_name)
+    if signal is None:
+        print("Signal {} not found for device {}!".format(signal_name, device))
+        return None
+    print("Found signal {} for device {}".format(signal, device))
+    sql = device_reading.select().where(device_reading.c.device_signal_id == signal['device_signal_id'], 
+                                        device_reading.c.device_id == signal['device_id']).order_by(desc(device_reading.c.reading_date)).limit(1)
+    rows = exec_query(sql)
+    for row in rows:
+      return row['value']
     return None
 
 def save_device_reading(device, signal_name, value, time = None):
