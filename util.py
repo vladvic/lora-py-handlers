@@ -134,6 +134,7 @@ def load_last_device_reading(device, signal_name):
                                         device_reading.c.device_id == signal['device_id']).order_by(desc(device_reading.c.reading_date)).limit(1)
     rows = exec_query(sql)
     for row in rows:
+      print("Value {}".format(row['value']))
       return row['value']
     return None
 
