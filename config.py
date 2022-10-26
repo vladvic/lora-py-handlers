@@ -104,7 +104,7 @@ def ndpd_process_data(session, port, data):
         print('Device not found')
 
     for row in rows:
-        handler = deviceTypes.get(session.device.appEUI, {}).get('get', None)
+        handler = deviceTypes.get(session.device.appEUI.lower(), {}).get('get', None)
         if handler is not None:
             print('Calling handler {}'.format(handler))
             handler(session, port, data)
