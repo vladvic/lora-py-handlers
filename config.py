@@ -75,7 +75,7 @@ def ndpd_get_device_info(devEUI, appEUI):
     stdout.flush()
     return result
 
-def ndpd_get_device_session(deviceAddr, networkAddr):
+def ndpd_load_device_session(deviceAddr, networkAddr):
     result = []
     rows = find_session(networkAddr, deviceAddr)
     print("Getting session info {}:{}".format(deviceAddr, networkAddr))
