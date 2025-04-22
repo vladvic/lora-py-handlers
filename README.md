@@ -5,3 +5,5 @@
 * SqlAlchemy
 
 * MySql (or any other database supported by sqlalchemy)
+
+* FLASK (for external access)
