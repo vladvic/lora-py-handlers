@@ -166,6 +166,14 @@ def send_device_data():
     stdout.flush()
     return "{}:{}\n".format(dev, signal), 404
 
+@app.route("/invalidate", methods=["POST", "GET"])
+def send_device_data():
+    print("Data: {}".format(request.data))
+    args = request.get_json(force=True)
+    device = args.get('device', '0:0')
+    deveui, appeui = device.split(':')
+    lorawan.invalidate(deveui, appeui)
+
 def run_flask():
     try:
         kwargs = {'debug': True, 'use_reloader': False, 'port': 4000, 'host': 'localhost'}
